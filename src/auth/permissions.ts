@@ -1,0 +1,5 @@
+export const PERMISSIONS = {
+  PRODUCTS: 'PRODUCTS',
+  ORDERS: 'ORDERS',
+  STATS: 'STATS',
+};

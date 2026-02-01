@@ -34,24 +34,23 @@ export class UsersService {
     return { email, password };
   }
 
-  async updatePassword(userId: number, newPassword: string): Promise<void> {
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
     const hashed = await bcrypt.hash(newPassword, 10);
 
     await this.userModel
       .findByIdAndUpdate(new Types.ObjectId(userId), { password: hashed })
       .exec();
   }
-
   async createSuperAdmin(email: string, password: string) {
-    const hashed = await bcrypt.hash(password, 10);
+    const exists = await this.userModel.findOne({ isSuperAdmin: true });
+    if (exists) return;
 
-    const superAdmin = new this.userModel({
+    const hashed = await bcrypt.hash(password, 10);
+    await this.userModel.create({
       email,
       password: hashed,
       isSuperAdmin: true,
-      permissions: ['*'], // accès total
+      permissions: ['*'],
     });
-
-    await superAdmin.save();
   }
 }

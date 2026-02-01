@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import type { RequestWithUser } from '../auth/request-with-user.interface';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -13,12 +14,13 @@ export class PermissionsGuard implements CanActivate {
 
     if (!required) return true;
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+
     const user = request.user;
 
-    // super admin = accès total
+    // Super admin = accès total
     if (user.isSuperAdmin) return true;
 
-    return required.every(p => user.permissions?.includes(p));
+    return required.every((p) => user.permissions?.includes(p));
   }
 }

@@ -17,9 +17,6 @@ import { MongooseModule } from '@nestjs/mongoose';
     UsersModule,
     ProductsModule,
     OrdersModule,
-    AuthModule,
-    UsersModule,
-    ProductsModule,
     OrdersModule,
     DashboardModule,
     DeliveryModule,
@@ -31,8 +28,8 @@ export class AppModule implements OnModuleInit {
   constructor(private usersService: UsersService) {}
 
   async onModuleInit() {
-    const email = 'superadmin@ad.com';
-    const exists = await this.usersService.findByEmail('super@admin.com');
+    const email = 'super@admin.com';
+    const exists = await this.usersService.findByEmail(email);
     if (!exists) {
       await this.usersService.createSuperAdmin(email, 'SuperSecret123');
     }

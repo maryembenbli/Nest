@@ -3,9 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/user.service';
 import * as bcrypt from 'bcrypt';
 import { Types } from 'mongoose';
+import LoginDto from './LoginDto ';
 
 @Injectable()
 export class AuthService {
+  createAdmin(dto: LoginDto) {
+    return this.usersService.createAdmin(dto.email, dto.permissions);
+  }
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -35,7 +39,7 @@ export class AuthService {
     };
   }
 
-  async changePassword(userId: number, newPassword: string): Promise<void> {
+  async changePassword(userId: string, newPassword: string): Promise<void> {
     await this.usersService.updatePassword(userId, newPassword);
   }
 }

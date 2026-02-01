@@ -8,9 +8,8 @@ export type UserDocument = User &
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ unique: true, required: true })
+  @Prop({ unique: true, required: true, lowercase: true, index: true })
   email: string;
-
   @Prop({ required: true })
   password: string;
 

@@ -7,27 +7,26 @@ export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-  const required = this.reflector.get<{ module: string; action: string }>(
-    'permissions',
-    context.getHandler(),
-  );
+    const required = this.reflector.get<{ module: string; action: string }>(
+      'permissions',
+      context.getHandler(),
+    );
 
-  if (!required) return true;
+    if (!required) return true;
 
-  const request = context.switchToHttp().getRequest<RequestWithUser>();
-  const user = request.user;
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const user = request.user;
 
-  if (user.isSuperAdmin) return true;
+    // Super admin accès total
+    if (user.isSuperAdmin) return true;
 
-  const userPerm = user.permissions || {};
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const modulePerm = userPerm[required.module];
+    if (!user.permissions) return false;
 
-  if (!modulePerm) return false;
+    const hasPermission = user.permissions.some(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      (p: any) => p.module === required.module && p.action === required.action,
+    );
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  return modulePerm[required.action] === true;
-}
-
-
+    return hasPermission;
+  }
 }

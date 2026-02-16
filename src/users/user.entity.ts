@@ -16,11 +16,8 @@ export class User {
   @Prop({ default: false })
   isSuperAdmin: boolean;
 
-@Prop({
-  type: Object,
-  default: {},
-})
-permissions: Record<string, any>;
+@Prop({ type: [{ module: String, action: String }], default: [] })
+permissions: { module: string; action: string }[];
 
 
   @Prop()

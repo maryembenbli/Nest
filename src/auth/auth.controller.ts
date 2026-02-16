@@ -4,7 +4,6 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import type { RequestWithUser } from './request-with-user.interface';
 import LoginDto from './LoginDto ';
 import { PermissionsGuard } from './permissions.guard';
-import { Permissions } from './permissions.decorator';
 import { UsersService } from '../users/user.service';
 @Controller('auth')
 export class AuthController {

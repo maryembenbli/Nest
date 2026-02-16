@@ -9,6 +9,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { UsersService } from './users/user.service';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     OrdersModule,
     DashboardModule,
     DeliveryModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

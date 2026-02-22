@@ -66,16 +66,14 @@ async deleteAdmin(id: string) {
   return this.userModel.findByIdAndDelete(new Types.ObjectId(id)).exec();
 }
 
-async updatePermissions(id: string, permissions: string[]) {
-  return this.userModel
-    .findByIdAndUpdate(
-      new Types.ObjectId(id),
-      { permissions },
-      { new: true, projection: { email: 1, isSuperAdmin: 1, permissions: 1, createdAt: 1 } },
-    )
-    .lean()
-    .exec();
+async updatePermissions(id: string, permissions: {module:string; action:string}[]) {
+  return this.userModel.findByIdAndUpdate(
+    new Types.ObjectId(id),
+    { permissions },
+    { new: true, projection: { email: 1, isSuperAdmin: 1, permissions: 1, createdAt: 1 } },
+  ).lean().exec();
 }
+
 async createResetToken(email: string) {
   const user = await this.findByEmail(email);
 

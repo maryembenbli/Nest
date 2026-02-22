@@ -29,7 +29,7 @@ export class UsersController {
   @Patch('admins/:id/permissions')
   updatePerms(
     @Param('id') id: string,
-    @Body('permissions') permissions: string[],
+    @Body('permissions') permissions: { module: string; action: string }[],
   ) {
     return this.usersService.updatePermissions(id, permissions || []);
   }

@@ -1,5 +1,6 @@
 export interface JwtPayload {
   sub: string;
+  email: string;
   isSuperAdmin: boolean;
-  permissions: string[];
+  permissions: { module: string; action: string }[];
 }

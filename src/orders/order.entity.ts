@@ -22,7 +22,7 @@ export enum RejectReason {
   OTHER = 'other',
 }
 
-@Schema({ timestamps: true })
+@Schema()
 export class OrderItem {
   @Prop({ type: Types.ObjectId, ref: 'Product', required: true })
   product: Types.ObjectId;
@@ -32,9 +32,33 @@ export class OrderItem {
 
   @Prop({ required: true })
   price: number;
+
+  @Prop({ default: 0 })
+  deliveryFee: number;
 }
 
 const OrderItemSchema = SchemaFactory.createForClass(OrderItem);
+
+@Schema()
+export class OrderHistory {
+  @Prop({
+    type: String,
+    enum: Object.values(OrderStatus),
+    required: true,
+  })
+  status: OrderStatus;
+
+  @Prop({ required: true })
+  changedBy: string;
+
+  @Prop()
+  note?: string;
+
+  @Prop({ default: Date.now })
+  date: Date;
+}
+
+const OrderHistorySchema = SchemaFactory.createForClass(OrderHistory);
 
 @Schema({ timestamps: true })
 export class Order {
@@ -51,32 +75,31 @@ export class Order {
   })
   rejectReason?: RejectReason;
 
-  @Prop()
+  @Prop({ default: '' })
   deliveryCompany: string;
 
-  @Prop()
+  @Prop({ default: '' })
   privateNote: string;
 
   @Prop({ default: false })
   exchange: boolean;
 
-  // Client details
-  @Prop({ required: true })
+  @Prop({ default: '' })
   customerName: string;
 
   @Prop({ required: true })
   phone: string;
 
-  @Prop()
+  @Prop({ default: '' })
   address: string;
 
-  @Prop()
+  @Prop({ default: '' })
   city: string;
 
-  @Prop()
+  @Prop({ default: '' })
   email: string;
 
-  @Prop()
+  @Prop({ default: '' })
   customerNote: string;
 
   @Prop({ type: [OrderItemSchema], default: [] })
@@ -84,6 +107,27 @@ export class Order {
 
   @Prop({ default: 0 })
   total: number;
+
+  @Prop({ type: [OrderHistorySchema], default: [] })
+  history: OrderHistory[];
+
+  @Prop({ default: false })
+  isArchived: boolean;
+
+  @Prop()
+  archivedAt?: Date;
+
+  @Prop({ default: false })
+  isDeleted: boolean;
+
+  @Prop()
+  deletedAt?: Date;
+
+  @Prop({ default: false })
+  isAbandoned: boolean;
+
+  @Prop()
+  abandonedAt?: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

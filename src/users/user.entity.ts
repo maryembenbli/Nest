@@ -10,21 +10,30 @@ export type UserDocument = User &
 export class User {
   @Prop({ unique: true, required: true, lowercase: true, index: true })
   email: string;
+
   @Prop({ required: true })
   password: string;
 
   @Prop({ default: false })
   isSuperAdmin: boolean;
 
-@Prop({ type: [{ module: String, action: String }], default: [] })
-permissions: { module: string; action: string }[];
+  @Prop({ type: [{ module: String, action: String }], default: [] })
+  permissions: { module: string; action: string }[];
 
+  @Prop({ default: false })
+  passwordSetupRequired: boolean;
 
   @Prop()
-resetPasswordTokenHash?: string;
+  passwordSetupTokenHash?: string;
 
-@Prop()
-resetPasswordExpires?: Date;
+  @Prop()
+  passwordSetupExpires?: Date;
+
+  @Prop()
+  resetPasswordTokenHash?: string;
+
+  @Prop()
+  resetPasswordExpires?: Date;
 }
 
 

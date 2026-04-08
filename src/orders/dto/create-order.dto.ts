@@ -17,6 +17,10 @@ class OrderItemDto {
 
   @IsNumber()
   price: number;
+
+  @IsOptional()
+  @IsNumber()
+  deliveryFee?: number;
 }
 
 export class CreateOrderDto {

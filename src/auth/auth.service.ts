@@ -1,14 +1,22 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/user.service';
 import * as bcrypt from 'bcrypt';
-import { Types } from 'mongoose';
-import LoginDto from './LoginDto ';
+import { LoginDto } from './login.dto';
 
 @Injectable()
 export class AuthService {
-  createAdmin(dto: LoginDto) {
-    return this.usersService.createAdmin(dto.email, dto.permissions);
+  createAdmin(dto: LoginDto, invitedByEmail?: string) {
+    return this.usersService.createAdmin(
+      dto.email,
+      dto.permissions ?? [],
+      invitedByEmail,
+    );
   }
   constructor(
     private readonly usersService: UsersService,
@@ -16,21 +24,26 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.usersService.findByEmail(normalizedEmail);
     if (!user) throw new UnauthorizedException();
+
+    if (user.passwordSetupRequired) {
+      throw new ForbiddenException({
+        code: 'PASSWORD_SETUP_REQUIRED',
+        message:
+          "Ce compte doit d'abord definir son mot de passe via le lien d'activation.",
+      });
+    }
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new UnauthorizedException();
 
-    if (!(user._id instanceof Types.ObjectId)) {
-      throw new UnauthorizedException();
-    }
-
     const payload = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-      sub: user._id.toHexString(),
+      sub: String(user._id),
+      email: user.email,
       isSuperAdmin: user.isSuperAdmin,
-      permissions: user.permissions || {},
+      permissions: user.permissions || [],
     };
 
     return {
@@ -40,13 +53,37 @@ export class AuthService {
   }
 
   async changePassword(userId: string, newPassword: string): Promise<void> {
+    this.ensureStrongPassword(newPassword);
     await this.usersService.updatePassword(userId, newPassword);
   }
 
   async setAdminPassword(email: string, newPassword: string) {
-    const user = await this.usersService.findByEmail(email);
+    this.ensureStrongPassword(newPassword);
+    const user = await this.usersService.findByEmail(email.trim().toLowerCase());
     if (!user) throw new UnauthorizedException();
-    await this.usersService.updatePassword(user._id.toHexString(), newPassword);
+    await this.usersService.updatePassword(String(user._id), newPassword);
     return { ok: true };
+  }
+
+  async resendAdminSetupLink(email: string, invitedByEmail?: string) {
+    return this.usersService.resendAdminSetupLink(email, invitedByEmail);
+  }
+
+  async setupAdminPassword(token: string, newPassword: string) {
+    this.ensureStrongPassword(newPassword);
+    return this.usersService.setupAdminPassword(token, newPassword);
+  }
+
+  private ensureStrongPassword(password: string) {
+    const normalized = password.trim();
+    const hasUpper = /[A-Z]/.test(normalized);
+    const hasLower = /[a-z]/.test(normalized);
+    const hasDigit = /\d/.test(normalized);
+
+    if (normalized.length < 8 || !hasUpper || !hasLower || !hasDigit) {
+      throw new BadRequestException(
+        'Le mot de passe doit contenir au moins 8 caracteres, une majuscule, une minuscule et un chiffre',
+      );
+    }
   }
 }

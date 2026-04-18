@@ -85,7 +85,7 @@ export class DashboardService {
   }
 
   private formatShortDate(date: Date) {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }).replace('.', '');
   }
 
   private formatMonthLabel(date: Date) {
@@ -240,7 +240,7 @@ export class DashboardService {
       },
       totals: {
         leads: totalLeads,
-        orders: businessOrders.length,
+        orders: visibleOrders.length,
         products: products.length,
         users: usersCount,
         revenue: revenueTotal,

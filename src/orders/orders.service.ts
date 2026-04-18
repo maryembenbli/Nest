@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   Injectable,
   NotFoundException,
@@ -235,16 +235,25 @@ export class OrdersService {
     return saved.populate('items.product');
   }
 
-  async remove(id: string) {
+  async remove(id: string, changedBy = 'dashboard-admin') {
     this.ensureValidId(id);
     const order = await this.orderModel.findById(id);
     if (!order) throw new NotFoundException('Order not found');
 
     order.isDeleted = true;
     order.deletedAt = new Date();
-    await order.save();
+    order.history.push({
+      status: order.status,
+      changedBy,
+      note: 'Commande supprimee',
+      date: new Date(),
+    } as never);
+    const saved = await order.save();
 
-    return { message: 'Order deleted' };
+    return {
+      message: 'Order deleted',
+      order: await saved.populate('items.product'),
+    };
   }
 
   async archive(id: string, changedBy = 'dashboard-admin') {
@@ -285,3 +294,4 @@ export class OrdersService {
     return saved.populate('items.product');
   }
 }
+

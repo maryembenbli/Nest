@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+﻿import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 export type OrderDocument = Order & Document;
@@ -8,6 +8,7 @@ export enum OrderStatus {
   PENDING = 'en_attente',
   ATTEMPT1 = 'tentative1',
   CONFIRMED = 'confirmee',
+  DOWNLOADED = 'telechargee',
   PACKED = 'emballee',
   DELIVERED = 'livree',
   RETURNED = 'retournee',
@@ -79,6 +80,27 @@ export class Order {
   deliveryCompany: string;
 
   @Prop({ default: '' })
+  deliveryProvider: string;
+
+  @Prop({ default: '' })
+  deliveryTrackingCode: string;
+
+  @Prop({ default: '' })
+  deliveryStatus: string;
+
+  @Prop({ default: '' })
+  deliveryStatusLabel: string;
+
+  @Prop({ type: Object, default: null })
+  deliveryPayload?: Record<string, unknown> | null;
+
+  @Prop()
+  deliverySyncedAt?: Date;
+
+  @Prop()
+  shippedAt?: Date;
+
+  @Prop({ default: '' })
   privateNote: string;
 
   @Prop({ default: false })
@@ -131,3 +153,4 @@ export class Order {
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
+

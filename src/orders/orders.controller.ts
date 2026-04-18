@@ -82,7 +82,11 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('orders', 'delete')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(id);
+  remove(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const changedBy = req.user?.isSuperAdmin
+      ? `Super Admin (${req.user.email})`
+      : req.user?.email || req.user?.sub || 'dashboard-admin';
+
+    return this.ordersService.remove(id, changedBy);
   }
 }
